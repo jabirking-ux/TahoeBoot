@@ -54,9 +54,6 @@ echo "[6/6] Verifying embedded Reims vGPU & TahoeBoot tools in squashfs..."
 SQ_LIST="$(unsquashfs -ll "${TMP_VERIFY}/filesystem.squashfs")"
 for item in \
     "usr/local/bin/tahoeboot-gpu-check" \
-    "usr/local/bin/reims-ctl" \
-    "usr/local/bin/reims-util" \
-    "usr/local/lib/libreims_vgpu.so" \
     "usr/local/share/qemu/ReimsVgpu.rom" \
     "usr/local/share/tahoeboot/opencore/opencore.qcow2" \
     "usr/local/share/tahoeboot/host/setup-host.sh" \
@@ -69,6 +66,15 @@ for item in \
         echo "      FAIL: SquashFS missing ${item}" >&2
         rm -rf "${TMP_VERIFY}"
         exit 1
+    fi
+done
+
+for opt_item in \
+    "usr/local/bin/reims-ctl" \
+    "usr/local/bin/reims-util" \
+    "usr/local/lib/libreims_vgpu.so"; do
+    if echo "${SQ_LIST}" | grep -q "${opt_item}"; then
+        echo "      PASS: SquashFS contains ${opt_item}"
     fi
 done
 

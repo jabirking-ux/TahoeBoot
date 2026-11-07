@@ -25,10 +25,10 @@ TAHOEBOOT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 PROJECT_ROOT="$(cd "${TAHOEBOOT_ROOT}/.." && pwd)"
 ISO_OUT="${1:-${TAHOEBOOT_ROOT}/TahoeBoot.iso}"
 
-WORK_DIR="/root/tahoe-build/iso-stage"
+WORK_DIR="${TAHOEBOOT_WORK_DIR:-${TMPDIR:-/tmp}/tahoe-build/iso-stage}"
 ISO_STAGE="${WORK_DIR}/iso"
 ROOTFS_STAGE="${WORK_DIR}/rootfs"
-KERNEL_CACHE="/root/tahoe-build/kernel-cache"
+KERNEL_CACHE="${TAHOEBOOT_KERNEL_CACHE:-${TMPDIR:-/tmp}/tahoe-build/kernel-cache}"
 
 rm -rf "${WORK_DIR}"
 mkdir -p "${ISO_STAGE}/boot/grub" "${ISO_STAGE}/EFI/BOOT" "${ISO_STAGE}/live" "${KERNEL_CACHE}"

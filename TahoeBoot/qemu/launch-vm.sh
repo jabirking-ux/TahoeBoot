@@ -137,9 +137,34 @@ QEMU_ARGS=(
     -D "${VM_DIR}/logs/qemu.log"
 )
 
-if [[ -f "${VM_DIR}/recovery.dmg" ]]; then
+INSTALLER_RAW=""
+if [[ -f "${VM_DIR}/installer.img" ]]; then
+    INSTALLER_RAW="${VM_DIR}/installer.img"
+else
+    INSTALLER_SRC=""
+    if [[ -f "${VM_DIR}/macOS-Tahoe-online-installer.dmg" ]]; then
+        INSTALLER_SRC="${VM_DIR}/macOS-Tahoe-online-installer.dmg"
+    elif [[ -f "${VM_DIR}/recovery.dmg" ]]; then
+        INSTALLER_SRC="${VM_DIR}/recovery.dmg"
+    fi
+
+    if [[ -n "${INSTALLER_SRC}" ]]; then
+        # Check if the file ends with a 512-byte 'koly' UDIF DMG trailer (as in reims-ctl's is_dmg).
+        # OpenCore's UEFI driver requires a raw disk image ('installer.img'), NOT a compressed UDIF DMG!
+        if tail -c 512 "${INSTALLER_SRC}" 2>/dev/null | head -c 4 | grep -q "^koly"; then
+            echo "[TahoeBoot Launch] Converting compressed UDIF DMG (${INSTALLER_SRC}) to raw bootable image (${VM_DIR}/installer.img)..."
+            qemu-img convert -f dmg -O raw "${INSTALLER_SRC}" "${VM_DIR}/installer.img.part"
+            mv -f "${VM_DIR}/installer.img.part" "${VM_DIR}/installer.img"
+            INSTALLER_RAW="${VM_DIR}/installer.img"
+        else
+            INSTALLER_RAW="${INSTALLER_SRC}"
+        fi
+    fi
+fi
+
+if [[ -n "${INSTALLER_RAW}" ]]; then
     QEMU_ARGS+=(
-        -drive "id=installer,if=none,format=raw,snapshot=on,file=${VM_DIR}/recovery.dmg"
+        -drive "id=installer,if=none,format=raw,snapshot=on,file=${INSTALLER_RAW}"
         -device "ide-hd,bus=sata.4,drive=installer"
     )
 fi

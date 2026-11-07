@@ -43,8 +43,9 @@ jobs:
         run: |
           cargo build --release --target-dir target-linux
 
-      - name: Build & verify TahoeBoot.iso
+      - name: Normalize LF line endings & build TahoeBoot.iso
         run: |
+          find TahoeBoot -type f \( -name "*.sh" -o -name "*.cfg" -o -name "*.conf" -o -name "*.rules" -o -name "*.service" -o -name "tahoeboot-ui" \) -exec sed -i 's/\r$//' {} +
           chmod +x TahoeBoot/scripts/*.sh TahoeBoot/host/*.sh TahoeBoot/rootfs/*.sh TahoeBoot/qemu/*.sh TahoeBoot/opencore/*.sh TahoeBoot/diagnostics/tahoeboot-ui
           ./TahoeBoot/scripts/build-iso.sh TahoeBoot/TahoeBoot.iso
           ./TahoeBoot/scripts/verify-iso.sh TahoeBoot/TahoeBoot.iso
