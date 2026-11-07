@@ -19,7 +19,7 @@ Built and tested against:
 - **Memory**: 16 GB DDR4 (8 GB allocated to guest via `memory-backend-memfd,share=on`, 8 GB retained for host/ANV shader cache & `udmabuf`)
 - **Storage**:
   - **Boot USB**: `TahoeBoot.iso` flashed to any >= 4 GB USB drive
-  - **VM Disk**: Separate external USB 3.2 / NVMe SSD formatted `ext4` or `exfat` with filesystem label `TAHOE_VM` (holding `opencore.qcow2`, `OVMF_CODE.fd`, `OVMF_VARS.fd`, and the 128 GiB `disk.qcow2`)
+  - **VM Disk (Full Drive Capacity)**: Separate external USB 3.2 / NVMe SSD (`LABEL=TAHOE_VM` or raw GPT partition `PARTLABEL=TAHOE_RAW`). On every boot, [`select-storage.sh`](TahoeBoot/scripts/select-storage.sh) queries the physical drive's full size (`df -B1 --output=size,avail`) and automatically creates or expands `disk.qcow2` to span the **entire capacity of the drive** (leaving only 2 GiB for `opencore.qcow2`, `OVMF_VARS.fd`, and logs), or passes the raw block device (`format=raw,cache=none,aio=native`) directly to the guest NVMe controller when `PARTLABEL=TAHOE_RAW` is present.
 
 Hardware is probed at boot. If the GPU check tool (`tahoeboot-gpu-check`) sees a software rasterizer (`llvmpipe`, `lavapipe`, `swiftshader`) or a GPU missing `VK_EXT_external_memory_host`, it aborts startup and prints the exact failing check rather than silently dropping to unaccelerated graphics.
 
@@ -136,13 +136,13 @@ sudo ./TahoeBoot/scripts/create-usb.sh /dev/sdX TahoeBoot/TahoeBoot.iso
 
 ### 3. Prepare the Persistent External SSD (`LABEL=TAHOE_VM`)
 
-Format a dedicated external SSD partition with label `TAHOE_VM` (`mkfs.ext4 -L TAHOE_VM /dev/sdY1`) and initialize the VM directory:
+Format your dedicated external SSD with label `TAHOE_VM`:
 
 ```bash
-mkdir -p /mnt/tahoe-storage/macos-tahoe/{configuration,logs,backups}
-cp TahoeBoot/opencore/{opencore.qcow2,OVMF_CODE.fd,OVMF_VARS.fd} /mnt/tahoe-storage/macos-tahoe/
-qemu-img create -f qcow2 /mnt/tahoe-storage/macos-tahoe/disk.qcow2 128G
+sudo mkfs.ext4 -L TAHOE_VM /dev/sdY1
 ```
+
+You do **not** need to hardcode a fixed disk size: on boot (or when you run `./TahoeBoot/scripts/vm-storage-mgr.sh init`), TahoeBoot inspects the drive's total capacity and automatically creates or expands `disk.qcow2` to use the **entire drive** (or passes the raw block device directly if you label a partition `PARTLABEL=TAHOE_RAW`).
 
 To install macOS Tahoe for the first time, fetch the Apple recovery image with `reims-util` (or `reims-ctl create`) and place `recovery.dmg` inside `/mnt/tahoe-storage/macos-tahoe/recovery.dmg`:
 

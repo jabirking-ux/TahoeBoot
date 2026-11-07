@@ -34,7 +34,7 @@ if [[ "${TAHOEBOOT_SKIP_GPU_CHECK:-0}" != "1" && -x "${GPU_CHECK}" ]]; then
     fi
 fi
 
-# 2. Locate persistent VM storage
+# 2. Locate persistent VM storage (and auto-expand to 100% of drive capacity)
 VM_DIR="${TAHOEBOOT_VM_DIR:-}"
 if [[ -z "${VM_DIR}" ]]; then
     VM_DIR="$("${TAHOEBOOT_ROOT}/scripts/select-storage.sh")"
@@ -45,8 +45,18 @@ if [[ ! -f "${VM_DIR}/opencore.qcow2" || ! -f "${VM_DIR}/OVMF_CODE.fd" ]]; then
     exit 21
 fi
 
-if [[ ! -f "${VM_DIR}/disk.qcow2" ]]; then
-    echo "CRITICAL [ERR_STORAGE_NOT_FOUND]: disk.qcow2 missing in ${VM_DIR}." >&2
+RAW_DISK_DEV="${TAHOEBOOT_RAW_DISK:-}"
+if [[ -z "${RAW_DISK_DEV}" && -f "${VM_DIR}/.raw_disk_device" ]]; then
+    RAW_DISK_DEV="$(cat "${VM_DIR}/.raw_disk_device")"
+fi
+
+if [[ -n "${RAW_DISK_DEV}" && -b "${RAW_DISK_DEV}" ]]; then
+    DISK_DRIVE_ARG="id=disk,if=none,format=raw,file=${RAW_DISK_DEV},cache=none,aio=native,discard=unmap"
+    echo "[TahoeBoot Storage] Using 100% raw block device passthrough: ${RAW_DISK_DEV}"
+elif [[ -f "${VM_DIR}/disk.qcow2" ]]; then
+    DISK_DRIVE_ARG="id=disk,if=none,format=qcow2,file=${VM_DIR}/disk.qcow2,discard=unmap"
+else
+    echo "CRITICAL [ERR_STORAGE_NOT_FOUND]: Neither raw block device nor disk.qcow2 found in ${VM_DIR}." >&2
     exit 22
 fi
 
@@ -109,7 +119,7 @@ QEMU_ARGS=(
     -device "ich9-ahci,id=sata,addr=0x2"
     -drive "id=opencore,if=none,format=qcow2,file=${VM_DIR}/opencore.qcow2"
     -device "ide-hd,bus=sata.2,drive=opencore,bootindex=1"
-    -drive "id=disk,if=none,format=qcow2,file=${VM_DIR}/disk.qcow2,discard=unmap"
+    -drive "${DISK_DRIVE_ARG}"
     -device "nvme,drive=disk,serial=reims-ctl,addr=0xa"
     -L "${REIMS_ROM_DIR}"
     -vga "none"
