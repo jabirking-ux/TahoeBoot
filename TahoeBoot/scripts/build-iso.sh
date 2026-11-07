@@ -52,6 +52,9 @@ cp -f "${TAHOEBOOT_ROOT}/rootfs/tahoeboot.service" "${ROOTFS_STAGE}/etc/systemd/
 cp -f "${TAHOEBOOT_ROOT}/host/setup-host.sh" "${ROOTFS_STAGE}/usr/local/share/tahoeboot/host/setup-host.sh"
 cp -f "${TAHOEBOOT_ROOT}/rootfs/tahoeboot-session.sh" "${ROOTFS_STAGE}/usr/local/share/tahoeboot/rootfs/tahoeboot-session.sh"
 cp -f "${TAHOEBOOT_ROOT}/qemu/launch-vm.sh" "${ROOTFS_STAGE}/usr/local/share/tahoeboot/qemu/launch-vm.sh"
+if [[ -f "${TAHOEBOOT_ROOT}/qemu/launch-apple-silicon.sh" ]]; then
+    cp -f "${TAHOEBOOT_ROOT}/qemu/launch-apple-silicon.sh" "${ROOTFS_STAGE}/usr/local/share/tahoeboot/qemu/launch-apple-silicon.sh"
+fi
 cp -f "${TAHOEBOOT_ROOT}/qemu/set-resolution.sh" "${ROOTFS_STAGE}/usr/local/share/tahoeboot/qemu/set-resolution.sh"
 cp -f "${TAHOEBOOT_ROOT}/opencore/build-opencore.sh" "${ROOTFS_STAGE}/usr/local/share/tahoeboot/opencore/build-opencore.sh"
 cp -f "${TAHOEBOOT_ROOT}/opencore/tahoe-guest-setup.sh" "${ROOTFS_STAGE}/usr/local/share/tahoeboot/opencore/tahoe-guest-setup.sh"

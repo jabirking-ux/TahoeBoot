@@ -76,11 +76,12 @@ TahoeBoot/
 ## 3. Preparing External Persistent Storage & Writing the Bootable USB
 
 ### Step 1: Prepare External Persistent SSD (`LABEL=TAHOE_VM`)
-Format a partition on your external SSD with `ext4` labeled `TAHOE_VM` (never touch internal Windows NTFS/BitLocker drives), and initialize the persistent macOS Tahoe directory structure:
+**TahoeBoot never auto-formats or runs `mkfs` on any disk or partition.** Prepare a partition on your external SSD labeled `TAHOE_VM` yourself (never touch internal Windows NTFS/BitLocker drives), and initialize the persistent macOS Tahoe directory structure:
 ```bash
 TahoeBoot/scripts/vm-storage-mgr.sh init
 TahoeBoot/opencore/build-opencore.sh
 ```
+This creates a sparse `disk.qcow2` file inside the mounted directory (attached on ICH9 AHCI SATA port `sata.3` so macOS Tahoe Disk Utility detects it immediately during installation).
 To download the official macOS Tahoe recovery image directly from Apple's software distribution servers into `VMStorage/macos-tahoe/recovery.dmg`, run:
 ```bash
 TahoeBoot/reims/bin/reims-util recovery --os tahoe -o VMStorage/macos-tahoe/recovery.dmg

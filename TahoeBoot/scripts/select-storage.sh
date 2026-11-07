@@ -67,7 +67,11 @@ ensure_full_drive_capacity() {
     fi
 
     if [[ ! -f "${qcow2_path}" ]]; then
-        echo "[TahoeBoot Storage] Allocating full drive capacity (${target_gib} GiB) to ${qcow2_path}..." >&2
+        if [[ "${TAHOEBOOT_CREATE_DISK:-1}" == "0" ]]; then
+            echo "[TahoeBoot Storage] Notice: ${qcow2_path} not found and TAHOEBOOT_CREATE_DISK=0." >&2
+            return 0
+        fi
+        echo "[TahoeBoot Storage] Creating sparse virtual image ${qcow2_path} (${target_gib} GiB logical capacity; NO host disk formatting is ever performed)..." >&2
         qemu-img create -f qcow2 -o cluster_size=65536,lazy_refcounts=on "${qcow2_path}" "${target_gib}G" >&2
     else
         local cur_virtual_bytes cur_virtual_gib
