@@ -103,10 +103,10 @@ mksquashfs "${ROOTFS_STAGE}" "${ISO_STAGE}/live/filesystem.squashfs" -comp zstd 
 echo "[TahoeBoot ISO] Stage 3: Staging Linux kernel, initramfs & GRUB UEFI configuration..."
 cp -f "${TAHOEBOOT_ROOT}/boot/grub.cfg" "${ISO_STAGE}/boot/grub/grub.cfg"
 
-# Locate Linux kernel image (from /boot/vmlinuz* or download Ubuntu 26.04 kernel package if in container/WSL)
+# Locate readable bare-metal generic Linux kernel image (skip Azure/cloud kernels & unreadable 0600 files)
 KERNEL_SRC=""
-for k in /boot/vmlinuz-* /boot/vmlinuz; do
-    if [[ -f "${k}" ]]; then
+for k in /boot/vmlinuz-*-generic /boot/vmlinuz; do
+    if [[ -f "${k}" && -r "${k}" ]]; then
         KERNEL_SRC="${k}"
         break
     fi
@@ -114,7 +114,7 @@ done
 
 if [[ -z "${KERNEL_SRC}" ]]; then
     if ! ls "${KERNEL_CACHE}/extracted/boot/vmlinuz-"* >/dev/null 2>&1; then
-        echo "[TahoeBoot ISO] Fetching Ubuntu 26.04 LTS bare-metal kernel (with i915, kvm_intel, udmabuf)..."
+        echo "[TahoeBoot ISO] Fetching Ubuntu bare-metal generic kernel (with i915, kvm_intel, udmabuf)..."
         (
             cd "${KERNEL_CACHE}"
             KPKG_NAME="$(apt-cache depends linux-image-generic | awk '/Depends: linux-image-[0-9]/{print $2}' | head -n1)"
