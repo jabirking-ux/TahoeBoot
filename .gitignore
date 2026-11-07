@@ -1,0 +1,18 @@
+# Cloned upstream references and local VM disks
+/upstream/
+/VMStorage/
+/config-temp/
+/config.log
+
+# Compiled ISO & large binary build artifacts (published via GitHub Releases)
+*.iso
+*.iso.sha256
+*.qcow2.bak
+TahoeBoot/gpu/target/
+TahoeBoot/gpu/target-linux/
+TahoeBoot/gpu/target-win/
+TahoeBoot/qemu/bin/qemu-system-x86_64
+TahoeBoot/reims/bin/reims-ctl
+TahoeBoot/reims/bin/reims-util
+TahoeBoot/reims/lib/libreims_vgpu.a
+TahoeBoot/reims/lib/libreims_vgpu.so

@@ -1,0 +1,125 @@
+[38;5;159m╭──────────────────────────────────────────────────────────────────────────────╮[0m
+[38;5;159m│[0m  [1m[38;5;117m  T A H O E B O O T[0m   [2mLiquid Glass Hypervisor Appliance · macOS Tahoe 26[0m   [38;5;159m│[0m
+[38;5;159m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+
+[38;5;203m╭─────────────────────────── TAHOEBOOT FAULT DETECTED ─────────────────────────╮[0m
+[38;5;203m│[0m  [1m[38;5;203mERROR CODE:[0m ERR_VTX_DISABLED
+[38;5;203m│[0m  [1mCondition:[0m  Intel VT-x hardware virtualization is disabled in UEFI BIOS.
+[38;5;203m│[0m  [1mAction:[0m     Reboot into Gigabyte B560M DS3H V2 BIOS -> Tweaker / Advanced CPU
+[38;5;203m│[0m              Settings -> Enable 'Intel Virtualization Technology (VT-x)'.
+[38;5;203m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+
+[38;5;159m╭──────────────────────────────────────────────────────────────────────────────╮[0m
+[38;5;159m│[0m  [1m[38;5;117m  T A H O E B O O T[0m   [2mLiquid Glass Hypervisor Appliance · macOS Tahoe 26[0m   [38;5;159m│[0m
+[38;5;159m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+
+[38;5;203m╭─────────────────────────── TAHOEBOOT FAULT DETECTED ─────────────────────────╮[0m
+[38;5;203m│[0m  [1m[38;5;203mERROR CODE:[0m ERR_KVM_UNAVAILABLE
+[38;5;203m│[0m  [1mCondition:[0m  /dev/kvm device node is missing or inaccessible.
+[38;5;203m│[0m  [1mAction:[0m     Run 'modprobe kvm_intel nested=1' and verify /dev/kvm permissions.
+[38;5;203m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+
+[38;5;159m╭──────────────────────────────────────────────────────────────────────────────╮[0m
+[38;5;159m│[0m  [1m[38;5;117m  T A H O E B O O T[0m   [2mLiquid Glass Hypervisor Appliance · macOS Tahoe 26[0m   [38;5;159m│[0m
+[38;5;159m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+
+[38;5;203m╭─────────────────────────── TAHOEBOOT FAULT DETECTED ─────────────────────────╮[0m
+[38;5;203m│[0m  [1m[38;5;203mERROR CODE:[0m ERR_VULKAN_MISSING
+[38;5;203m│[0m  [1mCondition:[0m  Vulkan runtime loader (libvulkan.so.1) or Mesa ANV ICD is missing.
+[38;5;203m│[0m  [1mAction:[0m     Verify /usr/share/vulkan/icd.d/intel_icd.json and libvulkan_intel.so.
+[38;5;203m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+
+[38;5;159m╭──────────────────────────────────────────────────────────────────────────────╮[0m
+[38;5;159m│[0m  [1m[38;5;117m  T A H O E B O O T[0m   [2mLiquid Glass Hypervisor Appliance · macOS Tahoe 26[0m   [38;5;159m│[0m
+[38;5;159m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+
+[38;5;203m╭─────────────────────────── TAHOEBOOT FAULT DETECTED ─────────────────────────╮[0m
+[38;5;203m│[0m  [1m[38;5;203mERROR CODE:[0m ERR_GPU_UNSUPPORTED
+[38;5;203m│[0m  [1mCondition:[0m  No compatible physical GPU found (CPU software renderers like
+[38;5;203m│[0m              llvmpipe, lavapipe, and SwiftShader are strictly rejected).
+[38;5;203m│[0m  [1mAction:[0m     Ensure Intel UHD Graphics 730 (0x8086:0x4c8b) is enabled in BIOS
+[38;5;203m│[0m              and booted on bare-metal Linux with the i915 kernel driver.
+[38;5;203m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+
+[38;5;159m╭──────────────────────────────────────────────────────────────────────────────╮[0m
+[38;5;159m│[0m  [1m[38;5;117m  T A H O E B O O T[0m   [2mLiquid Glass Hypervisor Appliance · macOS Tahoe 26[0m   [38;5;159m│[0m
+[38;5;159m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+
+[38;5;203m╭─────────────────────────── TAHOEBOOT FAULT DETECTED ─────────────────────────╮[0m
+[38;5;203m│[0m  [1m[38;5;203mERROR CODE:[0m ERR_UDMABUF_OR_HOST_MEMORY
+[38;5;203m│[0m  [1mCondition:[0m  Host memory sharing (VK_EXT_external_memory_host or /dev/udmabuf)
+[38;5;203m│[0m              or vm.max_map_count >= 2097152 check failed.
+[38;5;203m│[0m  [1mAction:[0m     Run 'modprobe udmabuf' and 'sysctl -w vm.max_map_count=2097152'.
+[38;5;203m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+
+[38;5;159m╭──────────────────────────────────────────────────────────────────────────────╮[0m
+[38;5;159m│[0m  [1m[38;5;117m  T A H O E B O O T[0m   [2mLiquid Glass Hypervisor Appliance · macOS Tahoe 26[0m   [38;5;159m│[0m
+[38;5;159m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+
+[38;5;203m╭─────────────────────────── TAHOEBOOT FAULT DETECTED ─────────────────────────╮[0m
+[38;5;203m│[0m  [1m[38;5;203mERROR CODE:[0m ERR_REIMS_INIT_FAILED
+[38;5;203m│[0m  [1mCondition:[0m  Reims vGPU (rvg_device_create / libreims_vgpu.so) failed to initialize.
+[38;5;203m│[0m  [1mAction:[0m     Inspect TahoeBoot/logs/ and run 'reims-ctl doctor' & 'reims-ctl gpus'.
+[38;5;203m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+
+[38;5;159m╭──────────────────────────────────────────────────────────────────────────────╮[0m
+[38;5;159m│[0m  [1m[38;5;117m  T A H O E B O O T[0m   [2mLiquid Glass Hypervisor Appliance · macOS Tahoe 26[0m   [38;5;159m│[0m
+[38;5;159m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+
+[38;5;203m╭─────────────────────────── TAHOEBOOT FAULT DETECTED ─────────────────────────╮[0m
+[38;5;203m│[0m  [1m[38;5;203mERROR CODE:[0m ERR_QEMU_LAUNCH_FAILED
+[38;5;203m│[0m  [1mCondition:[0m  Reims-patched QEMU exited unexpectedly during VM startup.
+[38;5;203m│[0m  [1mAction:[0m     Check VMStorage/macos-tahoe/logs/qemu.log and verify ReimsVgpu.rom.
+[38;5;203m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+
+[38;5;159m╭──────────────────────────────────────────────────────────────────────────────╮[0m
+[38;5;159m│[0m  [1m[38;5;117m  T A H O E B O O T[0m   [2mLiquid Glass Hypervisor Appliance · macOS Tahoe 26[0m   [38;5;159m│[0m
+[38;5;159m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+
+[38;5;203m╭─────────────────────────── TAHOEBOOT FAULT DETECTED ─────────────────────────╮[0m
+[38;5;203m│[0m  [1m[38;5;203mERROR CODE:[0m ERR_OPENCORE_MISSING
+[38;5;203m│[0m  [1mCondition:[0m  OpenCore boot image (opencore.qcow2) or OVMF firmware is missing.
+[38;5;203m│[0m  [1mAction:[0m     Run 'TahoeBoot/opencore/build-opencore.sh' to regenerate OpenCore 1.0.8.
+[38;5;203m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+
+[38;5;159m╭──────────────────────────────────────────────────────────────────────────────╮[0m
+[38;5;159m│[0m  [1m[38;5;117m  T A H O E B O O T[0m   [2mLiquid Glass Hypervisor Appliance · macOS Tahoe 26[0m   [38;5;159m│[0m
+[38;5;159m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+
+[38;5;203m╭─────────────────────────── TAHOEBOOT FAULT DETECTED ─────────────────────────╮[0m
+[38;5;203m│[0m  [1m[38;5;203mERROR CODE:[0m ERR_STORAGE_NOT_FOUND
+[38;5;203m│[0m  [1mCondition:[0m  External persistent storage (LABEL=TAHOE_VM / disk.qcow2) not found.
+[38;5;203m│[0m  [1mAction:[0m     Connect the external persistent SSD and run 'select-storage.sh'.
+[38;5;203m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+
+[38;5;159m╭──────────────────────────────────────────────────────────────────────────────╮[0m
+[38;5;159m│[0m  [1m[38;5;117m  T A H O E B O O T[0m   [2mLiquid Glass Hypervisor Appliance · macOS Tahoe 26[0m   [38;5;159m│[0m
+[38;5;159m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+
+[38;5;203m╭─────────────────────────── TAHOEBOOT FAULT DETECTED ─────────────────────────╮[0m
+[38;5;203m│[0m  [1m[38;5;203mERROR CODE:[0m ERR_GUEST_GPU_INIT_FAILED
+[38;5;203m│[0m  [1mCondition:[0m  macOS guest AppleParavirtGPU or ReimsVgpu.kext failed to bind.
+[38;5;203m│[0m  [1mAction:[0m     Rebuild OpenCore with 'reims-ctl update-opencore' and set
+[38;5;203m│[0m              METAL_ERROR_MODE=5 in /Library/Preferences/.GlobalPreferences.plist.
+[38;5;203m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+
+[38;5;159m╭──────────────────────────────────────────────────────────────────────────────╮[0m
+[38;5;159m│[0m  [1m[38;5;117m  T A H O E B O O T[0m   [2mLiquid Glass Hypervisor Appliance · macOS Tahoe 26[0m   [38;5;159m│[0m
+[38;5;159m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+
+[38;5;203m╭─────────────────────────── TAHOEBOOT FAULT DETECTED ─────────────────────────╮[0m
+[38;5;203m│[0m  [1m[38;5;203mERROR CODE:[0m ERR_DISPLAY_INIT_FAILED
+[38;5;203m│[0m  [1mCondition:[0m  Wayland/X11 display compositor or SDL3 presentation window failed.
+[38;5;203m│[0m  [1mAction:[0m     Verify Wayland/Cage session or DRM KMS permissions on /dev/dri/card0.
+[38;5;203m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+
+[38;5;159m╭──────────────────────────────────────────────────────────────────────────────╮[0m
+[38;5;159m│[0m  [1m[38;5;117m  T A H O E B O O T[0m   [2mLiquid Glass Hypervisor Appliance · macOS Tahoe 26[0m   [38;5;159m│[0m
+[38;5;159m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+
+[38;5;203m╭─────────────────────────── TAHOEBOOT FAULT DETECTED ─────────────────────────╮[0m
+[38;5;203m│[0m  [1m[38;5;203mERROR CODE:[0m ERR_MEMORY_ALLOC_FAILED
+[38;5;203m│[0m  [1mCondition:[0m  Host could not allocate 8192 MiB shared memfd RAM for the guest.
+[38;5;203m│[0m  [1mAction:[0m     Free host memory or set TAHOEBOOT_MEMORY_MIB=6144 on 16GB systems.
+[38;5;203m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+

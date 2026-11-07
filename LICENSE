@@ -1,0 +1,30 @@
+TahoeBoot is free software: you can redistribute it and/or modify it under
+the terms of either of these licenses, at your option:
+
+- the GNU General Public License, version 2, or (at your option) any later
+  version: LICENSES/GPL-2.0-or-later.txt;
+- the GNU Lesser General Public License, version 3, or (at your option) any
+  later version: LICENSES/LGPL-3.0-or-later.txt. The LGPL's version 3 is a
+  set of permissions added to the GNU General Public License, version 3,
+  whose text is LICENSES/GPL-3.0-or-later.txt.
+
+As an SPDX license expression: GPL-2.0-or-later OR LGPL-3.0-or-later.
+
+It is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the licenses for more details.
+
+Third-party components integrated or invoked by TahoeBoot retain their
+respective upstream licenses:
+- reims-vgpu, metal2vulkan, and reims-util by Anees Iqbal (steelbrain):
+  GPL-2.0-or-later OR LGPL-3.0-or-later
+- QEMU (including apple-gfx-pci, apple-gfx-iosurface-pci,
+  apple-videotoolbox-pci, and apple-m2scaler-pci devices): GPL-2.0-only /
+  GPL-2.0-or-later
+- Linux kernel (vmlinuz, kvm_intel, i915, udmabuf): GPL-2.0-only WITH
+  Linux-syscall-note
+- OpenCorePkg, Lilu, and WhateverGreen by Acidanthera: BSD-3-Clause
+- EDK II / OVMF by TianoCore: BSD-2-Clause-Patent
+- Mesa 3D / Intel ANV Vulkan driver: MIT
+- BusyBox: GPL-2.0-only
+- GNU GRUB & GNU xorriso: GPL-3.0-or-later

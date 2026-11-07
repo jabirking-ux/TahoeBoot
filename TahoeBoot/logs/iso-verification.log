@@ -1,0 +1,37 @@
+=== TAHOEBOOT ISO VERIFICATION REPORT ===
+[1/6] ISO File: /mnt/c/Users/User/Documents/Tahoe/TahoeBoot/TahoeBoot.iso (96772096 bytes)
+[2/6] Checking El Torito & UEFI boot catalog via xorriso...
+xorriso : NOTE : Detected El-Torito boot information which currently is set to be discarded
+Boot record  : El Torito , MBR protective-msdos-label grub2-mbr cyl-align-off GPT APM
+Volume id    : 'TAHOEBOOT'
+El Torito catalog  : 1628  1
+El Torito cat path : /boot.catalog
+El Torito images   :   N  Pltf  B   Emul  Ld_seg  Hdpt  Ldsiz         LBA
+El Torito boot img :   1  BIOS  y   none  0x0000  0x00      4        3043
+El Torito boot img :   2  UEFI  y   none  0x0000  0x00   5760          77
+El Torito img path :   1  /boot/grub/i386-pc/eltorito.img
+El Torito img opts :   1  boot-info-table grub2-boot-info
+El Torito img path :   2  /efi.img
+GPT partname local :   2  EFI boot partition
+[3/6] Verifying required ISO directory structure...
+      PASS: Found /boot/grub/grub.cfg
+      PASS: Found /boot/vmlinuz
+      PASS: Found /boot/initrd.img
+      PASS: Found /live/filesystem.squashfs
+[4/6] Extracting and verifying /live/filesystem.squashfs contents...
+[5/6] Verifying dual UEFI boot entries in grub.cfg...
+menuentry "1. TahoeBoot Appliance — Launch macOS Tahoe (Reims vGPU Accelerated)" {
+menuentry "2. TahoeBoot Maintenance & GPU Diagnostics Mode (tahoeboot-gpu-check)" {
+menuentry "3. UEFI Firmware Settings" {
+[6/6] Verifying embedded Reims vGPU & TahoeBoot tools in squashfs...
+      PASS: SquashFS contains usr/local/bin/tahoeboot-gpu-check
+      PASS: SquashFS contains usr/local/bin/reims-ctl
+      PASS: SquashFS contains usr/local/bin/reims-util
+      PASS: SquashFS contains usr/local/lib/libreims_vgpu.so
+      PASS: SquashFS contains usr/local/share/qemu/ReimsVgpu.rom
+      PASS: SquashFS contains usr/local/share/tahoeboot/opencore/opencore.qcow2
+      PASS: SquashFS contains usr/local/share/tahoeboot/host/setup-host.sh
+      PASS: SquashFS contains usr/local/share/tahoeboot/rootfs/tahoeboot-session.sh
+      PASS: SquashFS contains usr/local/share/tahoeboot/diagnostics/tahoeboot-ui
+      PASS: SquashFS contains etc/sysctl.d/99-reims-vgpu.conf
+=== ISO VERIFICATION PASSED ===

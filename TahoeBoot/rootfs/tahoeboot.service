@@ -1,0 +1,25 @@
+[Unit]
+Description=TahoeBoot GPU-Accelerated macOS Tahoe Virtualization Appliance
+After=systemd-udevd.service systemd-sysctl.service local-fs.target network.target sound.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=root
+Environment="HOME=/root"
+Environment="XDG_RUNTIME_DIR=/run/user/0"
+Environment="REIMS_VGPU_VENDOR_ID=0x8086"
+Environment="REIMS_VGPU_DEVICE_ID=0x4c8b"
+Environment="REIMS_VGPU_WINDOW_BORDERLESS=1"
+Environment="VK_DRIVER_FILES=/usr/share/vulkan/icd.d/intel_icd.json"
+ExecStartPre=/usr/local/share/tahoeboot/host/setup-host.sh
+ExecStart=/usr/local/share/tahoeboot/rootfs/tahoeboot-session.sh
+Restart=on-failure
+RestartSec=3
+LimitNOFILE=1048576
+LimitMEMLOCK=infinity
+StandardOutput=journal+console
+StandardError=journal+console
+
+[Install]
+WantedBy=graphical.target multi-user.target

@@ -1,0 +1,21 @@
+TAHOEBOOT GPU REPORT
+
+GPU: llvmpipe (LLVM 21.1.8, 256 bits) (0x10005:0x0000)
+Driver: llvmpipe (Mesa 26.0.8-1ubuntu0.3 (LLVM 21.1.8)) [kernel: dxgkrnl]
+Vulkan: 1.4.335
+Device: CPU Software Renderer
+External memory: PASS (VK_EXT_external_memory_host=true, DMA_BUF=true, minImportedHostPointerAlignment=4096 bytes)
+Host memory mapping: PASS (Zero-copy host pointer import verified (64 KiB @ 0x628c3e6d0000, memoryTypeBits=0x1, selectedType=0))
+Vulkan compute test: PASS (64/64 compute invocations verified (out[0]=0x5441484f, out[63]=0x54414a08))
+Vulkan graphics test: PASS (64x64 offscreen render pass & pixel readback verified (RGBA=[64, 128, 191, 255]))
+Reims compatibility: PASS (All Reims vGPU & metal2vulkan Vulkan 1.3/1.4, host pointer import, compute, and graphics pipeline checks passed)
+GPU selection: PASS (Build-test override active: using llvmpipe (LLVM 21.1.8, 256 bits) (rejected in production appliance mode))
+Guest acceleration: NOT TESTED
+
+--- REIMS HOST & KERNEL DIAGNOSTICS ---
+Environment:       Linux WSL2 (6.18.54.1-microsoft-standard-WSL2)
+KVM (/dev/kvm):    PRESENT (writable: true, VT-x/nested: true)
+udmabuf:           MISSING (WSL2 kernel lacks CONFIG_UDMABUF; present in TahoeBoot bare-metal Ubuntu 7.0 kernel) (writable: false)
+vm.max_map_count:  2097152 (PASS >= 2097152)
+Reims artifacts:   libreims_vgpu=false ReimsVgpu.rom=false qemu-reims=false opencore.qcow2=false
+Vulkan ICDs:       /usr/share/vulkan/icd.d/asahi_icd.json, /usr/share/vulkan/icd.d/gfxstream_vk_icd.json, /usr/share/vulkan/icd.d/intel_hasvk_icd.json, /usr/share/vulkan/icd.d/intel_icd.json, /usr/share/vulkan/icd.d/lvp_icd.json, /usr/share/vulkan/icd.d/nouveau_icd.json, /usr/share/vulkan/icd.d/radeon_icd.json, /usr/share/vulkan/icd.d/virtio_icd.json

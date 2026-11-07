@@ -1,0 +1,27 @@
+metal2vulkan: the device llvmpipe (LLVM 21.1.8, 256 bits): its `float` multiply and fused multiply-add round before they flush; a `float` product, fused multiply-add or `ldexp` whose exact value lies within half a unit below `2^-126` answers `2^-126` of its sign where Metal answers the zero of its sign [metal2vulkan-degrade-float-tininess-after-rounding]
+metal2vulkan: the device, on llvmpipe (LLVM 21.1.8, 256 bits): its driver lists no `VK_KHR_pipeline_binary`, whose device structure turns it off; the driver keeps its own cache of the device's pipelines beside the shader cache's records, with whatever it writes to disk and holds in memory for it; the pipelines made are the same [metal2vulkan-degrade-driver-pipeline-cache-kept]
+metal2vulkan: the device llvmpipe (LLVM 21.1.8, 256 bits): it has no answer for gpuCoreCount, maxVertexAmplificationCount, maxComputeThreadgroupMemory, isLargeMRTSupported, supportsComputeCompressedTextureWrite, supportsConditionalLoadStore: nothing it reports maps to them, so `PrivateAnswer::value` gives none, and Metal's measured answers (Apple's GPU's) are only `PrivateAnswer::metal`; the device gives no answer for them (`PrivateAnswer::value` is `None`); Metal's measured answers on Apple's GPUs ride beside, never as this device's [metal2vulkan-degrade-private-properties-unknown]
+metal2vulkan: the kernel of a compute pipeline state: its translation records `PrecisionNote::DeviceNanEncoding`; results can differ from Metal's as the note's documentation states [metal2vulkan-degrade-device-nan-encoding]
+metal2vulkan: the kernel of a compute pipeline state: its translation records `PrecisionNote::HalfTexelConversion`; results can differ from Metal's as the note's documentation states [metal2vulkan-degrade-half-texel-conversion]
+metal2vulkan: the kernel of a compute pipeline state: its translation records `PrecisionNote::DeviceColorConversion`; results can differ from Metal's as the note's documentation states [metal2vulkan-degrade-device-color-conversion]
+metal2vulkan: the kernel of a compute pipeline state: its translation records `PrecisionNote::NativeHalfConversion`; results can differ from Metal's as the note's documentation states [metal2vulkan-degrade-native-half-conversion]
+metal2vulkan: the uniqueIdentifier of a compute pipeline state: one value of the runtime's count, unique and fixed for the state's life, where Metal's is an address that differs from run to run; the identifier is one value of the runtime's count, unique and fixed for the state's life, where Metal's is an address that differs from run to run [metal2vulkan-degrade-plain-state-unique-identifier]
+=== TAHOEBOOT REIMS VGPU GUEST WORKLOAD SMOKE TEST (x86_64 LINUX) ===
+device: created (status=0)
+version: 245
+root_page: ok
+fifo_enabled: 1
+fault_offset: 0xffffffff
+nop: ok
+read: 12
+interrupt: raised
+task_define: ok
+task_handshake: accepted
+task_root_word: ok
+task_length: ok
+task_map: ok
+task_objects: ok
+task_exec: ok
+task_fill: ok
+faulted: 0
+done: ok

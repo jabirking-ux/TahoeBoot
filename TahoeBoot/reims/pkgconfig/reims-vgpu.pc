@@ -1,0 +1,13 @@
+# Written by `cargo xtask dist`.
+prefix=${pcfiledir}/../..
+libdir=${prefix}/lib
+includedir=${prefix}/include
+# The EFI option ROM for the PCI device, 106b:eeee.
+optionrom=${prefix}/share/reims-vgpu/ReimsVgpu.rom
+
+Name: reims-vgpu
+Description: The host side of the paravirtualized GPU that macOS guests drive
+Version: 0.1.0
+Libs: -L${libdir} -lreims_vgpu
+Libs.private: -ldl -lm -ldl -lgcc_s -lutil -lrt -lpthread -lm -ldl -lc
+Cflags: -I${includedir}

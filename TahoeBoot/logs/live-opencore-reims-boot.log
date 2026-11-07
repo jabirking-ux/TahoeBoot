@@ -1,0 +1,67 @@
+[TahoeBoot Storage] Scanning block devices by stable UUID / LABEL...
+[TahoeBoot Storage] Found workspace persistent storage at: /mnt/c/Users/User/Documents/Tahoe/VMStorage/macos-tahoe
+[TahoeBoot Launch] Starting Reims-accelerated macOS Tahoe VM (4 vCPUs, 2048 MiB RAM, 1920x1080)...
+metal2vulkan: the device llvmpipe (LLVM 21.1.8, 256 bits): its `float` multiply and fused multiply-add round before they flush; a `float` product, fused multiply-add or `ldexp` whose exact value lies within half a unit below `2^-126` answers `2^-126` of its sign where Metal answers the zero of its sign [metal2vulkan-degrade-float-tininess-after-rounding]
+metal2vulkan: the device, on llvmpipe (LLVM 21.1.8, 256 bits): its driver lists no `VK_KHR_pipeline_binary`, whose device structure turns it off; the driver keeps its own cache of the device's pipelines beside the shader cache's records, with whatever it writes to disk and holds in memory for it; the pipelines made are the same [metal2vulkan-degrade-driver-pipeline-cache-kept]
+reims-vgpu WARN reims_vgpu_vulkan::os: views of scattered guest pages take a kernel mapping a run of pages, counted against vm.max_map_count, as /dev/udmabuf would not open (No such file or directory (os error 2)): load the udmabuf module, and put the user in the group that owns the node (kvm on Ubuntu)
+metal2vulkan: the device llvmpipe (LLVM 21.1.8, 256 bits): it has no answer for gpuCoreCount, maxVertexAmplificationCount, maxComputeThreadgroupMemory, isLargeMRTSupported, supportsComputeCompressedTextureWrite, supportsConditionalLoadStore: nothing it reports maps to them, so `PrivateAnswer::value` gives none, and Metal's measured answers (Apple's GPU's) are only `PrivateAnswer::metal`; the device gives no answer for them (`PrivateAnswer::value` is `None`); Metal's measured answers on Apple's GPUs ride beside, never as this device's [metal2vulkan-degrade-private-properties-unknown]
+reims-vgpu WARN reims_vgpu_vulkan::caps: gpuCoreCount (gpu-core-count-unknown): llvmpipe (LLVM 21.1.8, 256 bits): its driver reports no core count and no Metal device stands for it, so the guest's device info carries none (key 34) and its device answers 0
+reims-vgpu INFO reims_vgpu_core::device: device starting on Metal device llvmpipe (LLVM 21.1.8, 256 bits)
+reims-vgpu DEBUG reims_vgpu_vulkan::gpu::timing: newLibraryWithSource:options:error:: 5.8 ms, synchronous on the calling thread: made; the platform's shaders
+reims-vgpu DEBUG reims_vgpu_vulkan::gpu::timing: newFunctionWithName:: 0.0 ms, synchronous on the calling thread: found; "BlitInRGB_2P_XR10_A8"
+metal2vulkan: the kernel of a compute pipeline state: its translation records `PrecisionNote::DeviceNanEncoding`; results can differ from Metal's as the note's documentation states [metal2vulkan-degrade-device-nan-encoding]
+metal2vulkan: the kernel of a compute pipeline state: its translation records `PrecisionNote::HalfTexelConversion`; results can differ from Metal's as the note's documentation states [metal2vulkan-degrade-half-texel-conversion]
+metal2vulkan: the kernel of a compute pipeline state: its translation records `PrecisionNote::DeviceColorConversion`; results can differ from Metal's as the note's documentation states [metal2vulkan-degrade-device-color-conversion]
+metal2vulkan: the kernel of a compute pipeline state: its translation records `PrecisionNote::NativeHalfConversion`; results can differ from Metal's as the note's documentation states [metal2vulkan-degrade-native-half-conversion]
+metal2vulkan: the uniqueIdentifier of a compute pipeline state: one value of the runtime's count, unique and fixed for the state's life, where Metal's is an address that differs from run to run; the identifier is one value of the runtime's count, unique and fixed for the state's life, where Metal's is an address that differs from run to run [metal2vulkan-degrade-plain-state-unique-identifier]
+reims-vgpu DEBUG reims_vgpu_vulkan::gpu::timing: newComputePipelineStateWithFunction:error:: 22.3 ms, synchronous on the calling thread (its VkPipelines are made at the dispatches that first need them): made uniqueIdentifier 137438953472; kernel "BlitInRGB_2P_XR10_A8"
+reims-vgpu DEBUG reims_vgpu_vulkan::gpu::timing: newFunctionWithName:: 0.0 ms, synchronous on the calling thread: found; "BlitOutRGB_2P_XR10_A8"
+reims-vgpu DEBUG reims_vgpu_vulkan::gpu::timing: newComputePipelineStateWithFunction:error:: 1.3 ms, synchronous on the calling thread (its VkPipelines are made at the dispatches that first need them): made uniqueIdentifier 137438953473; kernel "BlitOutRGB_2P_XR10_A8"
+reims-vgpu INFO reims_vgpu_core::device: device isolates every task but task 0 while its IOSurface device has a descriptor table
+reims-vgpu INFO reims_vgpu_core::device: argument buffers on while the IOSurface device has a descriptor table
+reims-vgpu DEBUG reims_vgpu_vulkan::gpu::timing: newFunctionWithName:: 0.0 ms, synchronous on the calling thread: found; "displayPresentVertex"
+reims-vgpu DEBUG reims_vgpu_vulkan::gpu::timing: newFunctionWithName:: 0.0 ms, synchronous on the calling thread: found; "displayPresentFragment"
+reims-vgpu DEBUG reims_vgpu_vulkan::gpu::timing: newFunctionWithName:: 0.0 ms, synchronous on the calling thread: found; "displayPresentFragmentWithGammaTableAndColorMatrix"
+metal2vulkan: the fragment function of a render pipeline state: its translation records `PrecisionNote::DeviceDenormals`; results can differ from Metal's as the note's documentation states [metal2vulkan-degrade-device-denormals]
+metal2vulkan: the fragment function of a render pipeline state: its translation records `PrecisionNote::FastMathRewrites`; results can differ from Metal's as the note's documentation states [metal2vulkan-degrade-fast-math-rewrites]
+metal2vulkan: the fragment function of a render pipeline state: its translation records `PrecisionNote::DeviceInterpolation`; results can differ from Metal's as the note's documentation states [metal2vulkan-degrade-device-interpolation]
+metal2vulkan: the fragment function of a render pipeline state: its translation records `PrecisionNote::DeviceSampling`; results can differ from Metal's as the note's documentation states [metal2vulkan-degrade-device-sampling]
+metal2vulkan: the fragment function of a render pipeline state: its translation records `PrecisionNote::DeviceTexelConversion`; results can differ from Metal's as the note's documentation states [metal2vulkan-degrade-device-texel-conversion]
+metal2vulkan: the fragment function of a render pipeline state: its translation records `PrecisionNote::NativeNanEncoding`; results can differ from Metal's as the note's documentation states [metal2vulkan-degrade-native-nan-encoding]
+metal2vulkan: the fragment function of a render pipeline state: its translation records `PrecisionNote::NativeMinMax`; results can differ from Metal's as the note's documentation states [metal2vulkan-degrade-native-min-max]
+reims-vgpu DEBUG reims_vgpu_vulkan::gpu::timing: newRenderPipelineStateWithDescriptor:error:: 79.0 ms, synchronous on the calling thread (its VkPipelines are made at the draws that first need them): made uniqueIdentifier 137438953474; vertex "displayPresentVertex", fragment "displayPresentFragmentWithGammaTableAndColorMatrix"
+reims-vgpu DEBUG reims_vgpu_vulkan::gpu::timing: newRenderPipelineStateWithDescriptor:error:: 2.2 ms, synchronous on the calling thread (its VkPipelines are made at the draws that first need them): made uniqueIdentifier 137438953475; vertex "displayPresentVertex", fragment "displayPresentFragment"
+reims-vgpu INFO reims_vgpu_core::display: display on port 0 created, serial number 0x1, name "Reims vGPU"
+reims-vgpu INFO reims_vgpu_core::iosurface::device: host device 0x74b90f6b4b30 created
+reims-vgpu INFO reims_vgpu::video: video device created, mapping IOSurfaces through the process's latest IOSurface device
+reims-vgpu WARN reims_vgpu::video::backend_choice: video device has no backend (the GPU device's GPU, llvmpipe (LLVM 21.1.8, 256 bits) (CPU), is a software rasterizer; the host has no other hardware GPU)
+reims-vgpu INFO reims_vgpu::video: video device: the guest is offered no codec, and its VideoToolbox decodes and encodes in software
+reims-vgpu INFO reims_vgpu::video: video device: no JPEG decoder on none: its JPEG engine answers as a host without one
+metal2vulkan: the kernel of a compute pipeline state: its translation records `PrecisionNote::NativeTranscendentals`; results can differ from Metal's as the note's documentation states [metal2vulkan-degrade-native-transcendentals]
+metal2vulkan: the kernel of a compute pipeline state: its translation records `PrecisionNote::NativeDivision`; results can differ from Metal's as the note's documentation states [metal2vulkan-degrade-native-division]
+metal2vulkan: the kernel of a compute pipeline state: its translation records `PrecisionNote::NativeFma`; results can differ from Metal's as the note's documentation states [metal2vulkan-degrade-native-fma]
+reims-vgpu INFO reims_vgpu::scaler: scaler device: transforms on llvmpipe (LLVM 21.1.8, 256 bits)
+reims-vgpu INFO reims_vgpu::video: scaler device created, mapping IOSurfaces through the process's latest IOSurface device
+reims-vgpu INFO reims_vgpu::scaler: scaler device reset
+reims-vgpu DEBUG reims_vgpu_core::iosurface::regs: descriptor enable 0x0
+reims-vgpu DEBUG reims_vgpu_core::iosurface::table: releasing every surface
+reims-vgpu DEBUG reims_vgpu_core::iosurface::table: released 0 surfaces
+reims-vgpu DEBUG reims_vgpu_core::iosurface::table: releasing every surface
+reims-vgpu DEBUG reims_vgpu_core::iosurface::table: released 0 surfaces
+reims-vgpu INFO reims_vgpu_core::device::lifecycle: device reset
+reims-vgpu DEBUG reims_vgpu_core::guest::abi::features: guest asked for unknown binary version 0
+reims-vgpu INFO reims_vgpu_core::guest::abi::features: guest asked for binary version 0; version 0x0 is stored
+reims-vgpu DEBUG reims_vgpu::scaler::gpu: scaler: Shared at (16, 4) made ahead in 924.0 ms, 924 ms after the making ahead started
+reims-vgpu DEBUG reims_vgpu::scaler::gpu: scaler: Quads at (16, 4) made ahead in 648.2 ms, 1573 ms after the making ahead started
+reims-vgpu DEBUG reims_vgpu::scaler::gpu: scaler: Lines at (16, 16) made ahead in 1375.8 ms, 2949 ms after the making ahead started
+reims-vgpu DEBUG reims_vgpu_vulkan::os::linux::import: an import of 0x7e9000 bytes at 0x74b7a962e000: a writable twin at 0x74b7a8e45000 of 1 mappings
+reims-vgpu DEBUG reims_vgpu::scaler::gpu: scaler: Lines at (16, 8) made ahead in 1203.7 ms, 4152 ms after the making ahead started
+metal2vulkan: a 2D BGRA8Unorm texture of 1920x1080 over a buffer at offset 0 with rows of 7680 bytes: the buffer's bytes are host pages imported by their pointer, and the device's check of the first move of an image over host pages imported by their pointer has not answered yet; its texels are copied into an image before each use and back after each write (over a buffer's bytes but a tracked private buffer's, kept before a write and merged back after it) [metal2vulkan-degrade-shadowed-texture]
+reims-vgpu INFO reims_vgpu_core::display::host_calls: display on port 0: mode 1920x1080, pixel format 0x42475241, protection requirements 0x0
+reims-vgpu DEBUG reims_vgpu::scaler::gpu: scaler: Across at (16, 4) made ahead in 840.6 ms, 4993 ms after the making ahead started
+reims-vgpu DEBUG reims_vgpu_vulkan::os::linux::import: an import of 0x7e9000 bytes at 0x74b793317000: a writable twin at 0x74b792b2e000 of 1 mappings
+reims-vgpu DEBUG reims_vgpu::scaler::gpu: scaler: Transform at (16, 4) made ahead in 2324.6 ms, 7318 ms after the making ahead started
+reims-vgpu DEBUG reims_vgpu_vulkan::os::linux::import: an import of 0x7e9000 bytes at 0x74b792345000: a writable twin at 0x74b791b5c000 of 1 mappings
+reims-vgpu DEBUG reims_vgpu::scaler::gpu: scaler: TransformAdaptive at (16, 4) made ahead in 3193.9 ms, 10512 ms after the making ahead started
+reims-vgpu INFO reims_vgpu::scaler::gpu: scaler device: kernels made ahead in 10512 ms
+qemu-system-x86_64: terminating on signal 15 from pid 551 (timeout)

@@ -1,0 +1,78 @@
+name: Build & Release TahoeBoot ISO
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Release tag (e.g. v0.1.0) — leave empty to only build artifact"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  build-iso:
+    name: Build & Verify TahoeBoot.iso
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install ISO & Rust build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            grub-efi-amd64-bin \
+            grub-pc-bin \
+            grub-common \
+            mtools \
+            xorriso \
+            squashfs-tools \
+            busybox-static \
+            libvulkan-dev \
+            pkg-config \
+            clang \
+            lld
+
+      - name: Build tahoeboot-gpu-check (Linux x86-64)
+        working-directory: TahoeBoot/gpu
+        run: |
+          cargo build --release --target-dir target-linux
+
+      - name: Build & verify TahoeBoot.iso
+        run: |
+          chmod +x TahoeBoot/scripts/*.sh TahoeBoot/host/*.sh TahoeBoot/rootfs/*.sh TahoeBoot/qemu/*.sh TahoeBoot/opencore/*.sh TahoeBoot/diagnostics/tahoeboot-ui
+          ./TahoeBoot/scripts/build-iso.sh TahoeBoot/TahoeBoot.iso
+          ./TahoeBoot/scripts/verify-iso.sh TahoeBoot/TahoeBoot.iso
+          sha256sum TahoeBoot/TahoeBoot.iso > TahoeBoot/TahoeBoot.iso.sha256
+
+      - name: Upload TahoeBoot.iso workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TahoeBoot-ISO
+          path: |
+            TahoeBoot/TahoeBoot.iso
+            TahoeBoot/TahoeBoot.iso.sha256
+
+      - name: Publish GitHub Release (on tag push or manual tag input)
+        if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.tag_name != '')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ inputs.tag_name != '' && inputs.tag_name || github.ref_name }}
+        run: |
+          if ! gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            gh release create "$TAG_NAME" \
+              TahoeBoot/TahoeBoot.iso \
+              TahoeBoot/TahoeBoot.iso.sha256 \
+              --title "TahoeBoot $TAG_NAME — Bootable UEFI Appliance ISO" \
+              --generate-notes
+          else
+            gh release upload "$TAG_NAME" \
+              TahoeBoot/TahoeBoot.iso \
+              TahoeBoot/TahoeBoot.iso.sha256 \
+              --clobber
+          fi

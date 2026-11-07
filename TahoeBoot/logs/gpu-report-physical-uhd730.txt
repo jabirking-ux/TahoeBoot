@@ -1,0 +1,21 @@
+TAHOEBOOT GPU REPORT
+
+GPU: Intel(R) UHD Graphics 730 (0x8086:0x4c8b)
+Driver: Intel Corporation (101.7092) [kernel: native]
+Vulkan: 1.4.323
+Device: Physical GPU (Integrated GPU)
+External memory: PASS (VK_EXT_external_memory_host=true, DMA_BUF=false, minImportedHostPointerAlignment=4096 bytes)
+Host memory mapping: PASS (Zero-copy host pointer import verified (64 KiB @ 0x2d40000, memoryTypeBits=0x6, selectedType=1))
+Vulkan compute test: PASS (64/64 compute invocations verified (out[0]=0x5441484f, out[63]=0x54414a08))
+Vulkan graphics test: PASS (64x64 offscreen render pass & pixel readback verified (RGBA=[64, 128, 191, 255]))
+Reims compatibility: PASS (All Reims vGPU & metal2vulkan Vulkan 1.3/1.4, host pointer import, compute, and graphics pipeline checks passed)
+GPU selection: PASS (Selected physical Intel UHD Graphics 730 (0x8086:0x4c8b))
+Guest acceleration: NOT TESTED
+
+--- REIMS HOST & KERNEL DIAGNOSTICS ---
+Environment:       Windows Host (Native Physical Hardware Probe)
+KVM (/dev/kvm):    MISSING (writable: false, VT-x/nested: true)
+udmabuf:           MISSING (WSL2 kernel lacks CONFIG_UDMABUF; present in TahoeBoot bare-metal Ubuntu 7.0 kernel) (writable: false)
+vm.max_map_count:  0 (NEEDS sysctl vm.max_map_count=2097152)
+Reims artifacts:   libreims_vgpu=false ReimsVgpu.rom=false qemu-reims=false opencore.qcow2=false
+Vulkan ICDs:       Windows Registry Khronos\Vulkan\Drivers (Intel Windows Vulkan ICD)

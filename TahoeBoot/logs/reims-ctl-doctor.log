@@ -1,0 +1,11 @@
+ok   host: Linux on x86-64, runs q35-x86_64 VMs
+ok   files: settings in ~/.config/reims-ctl, VMs and QEMU in ~/.local/share/reims-ctl
+ok   qemu: /mnt/c/Users/User/Documents/Tahoe/TahoeBoot/qemu/bin/qemu-system-x86_64 (QEMU emulator version 11.1.50)
+ok   audio backends: none, alsa, dbus, oss, pa, pipewire, wav (default pipewire)
+FAIL checkout: no install record: reims-ctl update needs scripts/install-ctl.sh to have run
+ok   /dev/kvm: usable
+FAIL /dev/udmabuf: There's no /dev/udmabuf: the guest's memory reaches the GPU through it, and without it the guest can crash at higher resolutions, at 4K even at its desktop. Load it with sudo modprobe udmabuf, and put udmabuf in a file in /etc/modules-load.d to keep it
+ok   vm.max_map_count: 2097152
+ok   vulkan: llvmpipe (LLVM 21.1.8, 256 bits) (cpu, lvp_icd.json)
+ok   desktop session: found
+ok   reims-util: /mnt/c/Users/User/Documents/Tahoe/TahoeBoot/reims/bin/reims-util (reims-util 0.1.0)

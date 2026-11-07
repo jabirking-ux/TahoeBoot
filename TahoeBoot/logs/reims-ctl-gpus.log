@@ -1,0 +1,3 @@
+By default the library takes the first discrete GPU, then the first integrated one.
+ 1. llvmpipe (LLVM 21.1.8, 256 bits)  [10005:0000]  /usr/share/vulkan/icd.d/lvp_icd.json
+Give a VM one with: reims-ctl set NAME --gpu NUMBER
