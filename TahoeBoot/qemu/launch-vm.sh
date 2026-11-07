@@ -153,14 +153,14 @@ SSH_PORT="${TAHOEBOOT_SSH_PORT:-2222}"
 DISK_CONTROLLER="${TAHOEBOOT_DISK_CONTROLLER:-ahci}"
 
 # 8. Graphics & GPU configuration:
-#    - On bare-metal Linux (`/dev/dri/renderD128` + `intel_icd.json`): full Reims vGPU
+#    - On bare-metal Linux (`/dev/dri/renderD128` + `intel_icd.json` AND NOT WSL2): full Reims vGPU
 #      (`apple-gfx-pci` + `apple-gfx-iosurface-pci` + `apple-videotoolbox-pci` + `apple-m2scaler-pci`)
 #      on the physical Intel UHD Graphics 730 (`0x8086:0x4c8b`).
-#    - Inside WSL2 (where `/dev/dri/renderD128` does not exist and Vulkan falls back to `llvmpipe` CPU):
+#    - Inside WSL2 (where `/dev/dri/renderD128` is WSLg's vgem dummy device and Vulkan falls back to `llvmpipe` CPU):
 #      default to `vmware-svga` (`-display gtk`) or `apple-gfx-pci` WITHOUT `apple-m2scaler-pci`
 #      so `llvmpipe` is not forced to execute 7 heavy M2 scaler compute shaders on the CPU every frame!
 HAS_INTEL_DRI=0
-if [[ -e "/dev/dri/renderD128" && -f "/usr/share/vulkan/icd.d/intel_icd.json" ]]; then
+if [[ "${IS_WSL}" == "0" && -e "/dev/dri/renderD128" && -f "/usr/share/vulkan/icd.d/intel_icd.json" ]]; then
     HAS_INTEL_DRI=1
 fi
 
