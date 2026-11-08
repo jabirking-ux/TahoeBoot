@@ -64,6 +64,9 @@ cp -f "${TAHOEBOOT_ROOT}/scripts/vm-storage-mgr.sh" "${ROOTFS_STAGE}/usr/local/s
 if [[ -f "${TAHOEBOOT_ROOT}/scripts/create-host-disk-mirror.sh" ]]; then
     cp -f "${TAHOEBOOT_ROOT}/scripts/create-host-disk-mirror.sh" "${ROOTFS_STAGE}/usr/local/share/tahoeboot/scripts/create-host-disk-mirror.sh"
 fi
+if [[ -f "${TAHOEBOOT_ROOT}/scripts/start-host-disk-rw.sh" ]]; then
+    cp -f "${TAHOEBOOT_ROOT}/scripts/start-host-disk-rw.sh" "${ROOTFS_STAGE}/usr/local/share/tahoeboot/scripts/start-host-disk-rw.sh"
+fi
 if [[ -d "${TAHOEBOOT_ROOT}/opencore/EFI" ]]; then
     cp -rf "${TAHOEBOOT_ROOT}/opencore/EFI" "${ROOTFS_STAGE}/usr/local/share/tahoeboot/opencore/EFI"
 fi

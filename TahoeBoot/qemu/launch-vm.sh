@@ -235,24 +235,32 @@ if [[ -n "${INSTALLER_RAW}" && -f "${INSTALLER_RAW}" ]]; then
 fi
 
 # 9. Expose all actual host disks (Windows NVMe SSD, data partitions, Linux drives)
-#    so OpenCore 1.0.8 and macOS Disk Utility show every drive for seamless dual-booting!
+#    AND start the bidirectional Read-Write host disk service so any changes made inside
+#    macOS on the physical drives persist immediately when you reboot into Windows!
+if [[ -x "${TAHOEBOOT_ROOT}/scripts/start-host-disk-rw.sh" ]]; then
+    "${TAHOEBOOT_ROOT}/scripts/start-host-disk-rw.sh" || true
+fi
+
 if [[ "${EXPOSE_ALL_DISKS}" == "1" ]]; then
     if [[ "${IS_WSL}" == "0" ]]; then
         # Bare-metal Linux hypervisor: enumerate real physical NVMe / SATA / USB block devices
+        # Default TAHOEBOOT_HOST_DISKS_RW=1 so changes written to physical drives from macOS
+        # (EFI boot entries, exFAT/FAT32/APFS/ext4/NTFS volumes) persist when rebooting to Windows!
+        HOST_DISKS_RW="${TAHOEBOOT_HOST_DISKS_RW:-1}"
         HOST_IDX=0
         for blk in $(lsblk -dpno NAME,TYPE 2>/dev/null | awk '$2=="disk"{print $1}'); do
             if [[ "${blk}" == "${RAW_DISK_DEV}" ]]; then
                 continue
             fi
-            # Use snapshot=on by default so OpenCore & macOS can read/boot all disks safely
-            # (set TAHOEBOOT_HOST_DISKS_RW=1 for direct read-write passthrough).
-            SNAP_OPT=",snapshot=on"
-            if [[ "${TAHOEBOOT_HOST_DISKS_RW:-0}" == "1" ]]; then
-                SNAP_OPT=""
+            SNAP_OPT=""
+            if [[ "${HOST_DISKS_RW}" == "0" ]]; then
+                SNAP_OPT=",snapshot=on"
+            else
+                SNAP_OPT=",cache=writeback"
             fi
             PCI_ADDR=$((0xb + HOST_IDX))
             if (( PCI_ADDR <= 0x18 )); then
-                echo "[TahoeBoot Dual-Boot] Attaching physical host disk ${blk} to VM (NVMe slot $(printf '0x%x' ${PCI_ADDR}))..."
+                echo "[TahoeBoot Dual-Boot] Attaching physical host disk ${blk} (RW=${HOST_DISKS_RW}) to VM (NVMe slot $(printf '0x%x' ${PCI_ADDR}))..."
                 QEMU_ARGS+=(
                     -drive "id=hostdisk${HOST_IDX},if=none,format=raw,file=${blk}${SNAP_OPT}"
                     -device "nvme,drive=hostdisk${HOST_IDX},serial=HOSTDISK${HOST_IDX},addr=$(printf '0x%x' ${PCI_ADDR})"
@@ -261,20 +269,20 @@ if [[ "${EXPOSE_ALL_DISKS}" == "1" ]]; then
             fi
         done
     else
-        # WSL2 on Windows: Windows locks \\.\PhysicalDrive0 against raw block access from WSL2,
-        # so we attach:
-        #   (a) The 477 GiB (512 GB) sparse GPT mirror (`host-disks-mirror.qcow2`) of the host's
-        #       `WAR 512GB` NVMe SSD containing the real Windows EFI Boot Manager (`bootmgfw.efi`),
-        #       `Windows (C:)`, and `Local Disk (D:)` on SATA port `sata.5` AND NVMe (`0xa`), plus
-        #   (b) Live VirtIO-9P host filesystem shares for `C:\` (`HostC`) and `D:\` (`HostD`).
+        # WSL2 on Windows:
+        #   (a) Persistent 477 GiB (512 GB) GPT mirror (`host-disks-mirror.qcow2`, cache=writeback,
+        #       NO snapshot=on so partition/EFI changes persist across VM reboots!),
+        #   (b) Live bidirectional Read-Write SMB bridge (`smb://guest:@10.0.2.2/Windows_C` and
+        #       `smb://guest:@10.0.2.2/LocalDisk_D` backed by `smbd` with `strict sync = yes`), and
+        #   (c) Live VirtIO-9P host filesystem shares for `C:\` (`Windows_C`) and `D:\` (`LocalDisk_D`).
         HOST_MIRROR="${ACTIVE_VM_DIR}/host-disks-mirror.qcow2"
         if [[ ! -f "${HOST_MIRROR}" && -x "${TAHOEBOOT_ROOT}/scripts/create-host-disk-mirror.sh" ]]; then
             "${TAHOEBOOT_ROOT}/scripts/create-host-disk-mirror.sh" "${HOST_MIRROR}"
         fi
         if [[ -f "${HOST_MIRROR}" ]]; then
-            echo "[TahoeBoot Dual-Boot] Attaching host WAR 512GB NVMe SSD mirror (Windows Boot Manager + C: + D:) on sata.5..."
+            echo "[TahoeBoot Dual-Boot] Attaching persistent WAR 512GB NVMe SSD (Windows Boot Manager + C: + D:) on sata.5..."
             QEMU_ARGS+=(
-                -drive "id=win_nvme,if=none,format=qcow2,snapshot=on,file=${HOST_MIRROR}"
+                -drive "id=win_nvme,if=none,format=qcow2,cache=writeback,file=${HOST_MIRROR}"
                 -device "ide-hd,bus=sata.5,drive=win_nvme,model=WAR-512GB-Windows-NVMe,rotation_rate=1"
             )
         fi
@@ -332,7 +340,16 @@ QEMU_ARGS+=(
 
 echo "[TahoeBoot Launch] Starting macOS Tahoe Multi-OS Dual-Boot VM:"
 echo "  - Mode       : ${GRAPHICS_MODE} (macOS Target Disk: AHCI sata.3 [410 GiB], Host Windows NVMe: sata.5 [477 GiB])"
+echo "  - Host R/W   : smb://guest:@10.0.2.2/Windows_C & smb://guest:@10.0.2.2/LocalDisk_D (live physical disk writes enabled!)"
 echo "  - OpenCore   : 1.0.8 Multi-OS Dual-Boot EFI (macOS Tahoe + Windows Boot Manager + Linux + Tools)"
 echo "  - Resources  : ${CPUS} vCPUs (${CPU_MODEL}, KVM), ${MEMORY_MIB} MiB RAM, ${RESOLUTION}"
 echo "  - Storage Dir: ${ACTIVE_VM_DIR}"
-exec "${QEMU_BIN}" "${QEMU_ARGS[@]}" "$@"
+
+# Run QEMU and sync all dirty pages back to physical storage on exit
+"${QEMU_BIN}" "${QEMU_ARGS[@]}" "$@"
+RET=$?
+sync
+if [[ "${IS_WSL}" == "1" && "${ACTIVE_VM_DIR}" != "${VM_DIR}" ]]; then
+    cp -f "${ACTIVE_VM_DIR}/OVMF_VARS.fd" "${VM_DIR}/OVMF_VARS.fd" 2>/dev/null || true
+fi
+exit ${RET}
