@@ -1,16 +1,14 @@
 @echo off
-title TahoeBoot macOS Tahoe VM
+title TahoeBoot macOS Tahoe VM + USB Passthrough
 cls
 echo ===================================================================
 echo  TahoeBoot: macOS Tahoe Virtual Machine
 echo ===================================================================
 echo.
-echo [1/2] Attaching physical USB drive to hypervisor...
-wsl.exe --mount \\.\PhysicalDrive1 --bare 2>nul
-if %errorlevel% equ 0 (
-    echo       Physical USB drive attached successfully!
-) else (
-    echo       Note: To attach physical USB, right-click this .bat and choose 'Run as administrator'.
+echo [1/2] Connecting physical USB drive to VM...
+powershell -NoProfile -Command "Get-Disk | Where-Object BusType -eq 'USB' | Set-Disk -IsOffline $true" >nul 2>&1
+for /f "tokens=*" %%i in ('powershell -NoProfile -Command "Get-Disk | Where-Object BusType -eq 'USB' | Select-Object -ExpandProperty Number -First 1"') do (
+    wsl.exe --mount \\.\PhysicalDrive%%i --bare >nul 2>&1
 )
 echo.
 echo [2/2] Starting macOS Tahoe VM...

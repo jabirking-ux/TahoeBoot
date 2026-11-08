@@ -70,8 +70,11 @@ foreach ($disk in $usbDisks) {
         }
     }
 
+    Write-Host "[TahoeBoot USB] Releasing Windows volume lock (taking Disk #$($disk.Number) offline)..." -ForegroundColor Cyan
+    Set-Disk -Number $disk.Number -IsOffline $true -ErrorAction SilentlyContinue
+
     Write-Host "[TahoeBoot USB] Mounting $devId into WSL2 (--bare) for direct QEMU USB 3.0 passthrough..." -ForegroundColor Cyan
-    wsl --mount $devId --bare 2>$null
+    wsl --mount $devId --bare
 }
 
 Write-Host "[TahoeBoot USB] Physical USB disk(s) attached to WSL2. Launching or restarting VM will expose them directly in Disk Utility!" -ForegroundColor Green
