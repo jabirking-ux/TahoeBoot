@@ -20,6 +20,16 @@ $ErrorActionPreference = "Continue"
 $RepoRoot = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 $EfiSource = Join-Path $RepoRoot "TahoeBoot\opencore\EFI"
 
+$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+if (-not $isAdmin) {
+    Write-Host "[TahoeBoot USB] Requesting Administrator elevation to attach physical drive to WSL2..." -ForegroundColor Yellow
+    $argsList = "-NoProfile -ExecutionPolicy Bypass -File `"$($MyInvocation.MyCommand.Path)`""
+    if ($InstallUniversalEfiToUsb) { $argsList += " -InstallUniversalEfiToUsb" }
+    if ($DiskNumber -ge 0) { $argsList += " -DiskNumber $DiskNumber" }
+    Start-Process powershell.exe -Verb RunAs -ArgumentList $argsList -Wait
+    exit 0
+}
+
 Write-Host "===================================================================" -ForegroundColor Cyan
 Write-Host " TahoeBoot Physical USB Disk Passthrough & Universal x64 Boot Tool" -ForegroundColor Cyan
 Write-Host "===================================================================" -ForegroundColor Cyan

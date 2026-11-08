@@ -209,6 +209,9 @@ QEMU_ARGS=(
     -global "ICH9-LPC.disable_s3=1"
     -device "pcie-root-port,bus=pcie.0,addr=0x1,slot=1,x-speed=16,x-width=32"
     -device "isa-applesmc,osk=${OSK}"
+    -device "qemu-xhci,id=xhci,addr=0x5,conditional-intr-mapping=on"
+    -device "usb-kbd,id=kbd,bus=xhci.0"
+    -device "usb-tablet,id=tablet,bus=xhci.0"
     -drive "if=pflash,format=raw,readonly=on,file=${ACTIVE_VM_DIR}/OVMF_CODE.fd"
     -drive "if=pflash,format=raw,file=${ACTIVE_VM_DIR}/OVMF_VARS.fd"
     -smbios "type=2"
@@ -318,7 +321,11 @@ if [[ "${EXPOSE_ALL_DISKS}" == "1" ]]; then
         dev_name=$(echo "${blk}" | awk '{print $1}')
         dev_tran=$(echo "${blk}" | awk '{print $2}')
         dev_rm=$(echo "${blk}" | awk '{print $3}')
-        # Exclude system/internal disks and VM storage raw device
+        # Strictly exclude virtual, nbd, loop, ram, and dm devices
+        if [[ "${dev_name}" =~ ^/dev/(nbd|loop|ram|dm-|zram) ]]; then
+            continue
+        fi
+        # Exclude system/internal disks and VM storage raw device unless tran=usb or rm=1
         if [[ "${dev_name}" == "${RAW_DISK_DEV}" || "${dev_name}" == "/dev/sda" || "${dev_name}" == "/dev/sdb" || "${dev_name}" == "/dev/sdc" || "${dev_name}" == "/dev/sdd" ]]; then
             if [[ "${dev_tran}" != "usb" && "${dev_rm}" != "1" ]]; then
                 continue
@@ -363,9 +370,6 @@ else
 fi
 
 QEMU_ARGS+=(
-    -device "qemu-xhci,id=xhci,addr=0x5,conditional-intr-mapping=on"
-    -device "usb-kbd,id=kbd,bus=xhci.0"
-    -device "usb-tablet,id=tablet,bus=xhci.0"
     -netdev "user,id=net0,ipv6=off,hostfwd=tcp:127.0.0.1:${SSH_PORT}-:22"
     -device "virtio-net-pci,netdev=net0,id=net0,mac=52:54:00:c9:18:27,addr=0x3"
     -serial "file:${VM_DIR}/logs/console.log"
