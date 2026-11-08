@@ -6,15 +6,21 @@ echo  TahoeBoot: Physical USB Drive Passthrough (usbipd)
 echo ===================================================
 echo.
 
-powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-    "$b = (& 'C:\Program Files\usbipd-win\usbipd.exe' list | Where-Object { $_ -match 'Mass' } | ForEach-Object { ($_ -split '\s+')[0] });" ^
-    "if (-not $b) { Write-Host 'No USB Mass Storage device found. Please plug in your USB drive.' -ForegroundColor Yellow; exit 1 };" ^
-    "Write-Host ('Found USB Drive at Bus ID: ' + $b) -ForegroundColor Green;" ^
-    "Write-Host 'Sharing USB Drive with hypervisor...' -ForegroundColor Cyan;" ^
-    "& 'C:\Program Files\usbipd-win\usbipd.exe' bind --busid $b --force;" ^
-    "Write-Host 'Attaching USB Drive to WSL2...' -ForegroundColor Cyan;" ^
-    "& 'C:\Program Files\usbipd-win\usbipd.exe' attach --wsl --busid $b;" ^
-    "if ($LASTEXITCODE -eq 0) { Write-Host '===================================================' -ForegroundColor Green; Write-Host ' SUCCESS: Physical USB drive attached to hypervisor!' -ForegroundColor Green; Write-Host ' Open macOS Recovery Disk Utility to see your drive!' -ForegroundColor Green; Write-Host '===================================================' -ForegroundColor Green } else { Write-Host ('Status / Exit code: ' + $LASTEXITCODE) -ForegroundColor Yellow }"
+set USBIPD="C:\Program Files\usbipd-win\usbipd.exe"
 
+echo [1/3] Ensuring WSL2 is running...
+wsl.exe -d Ubuntu -e true
+
+echo [2/3] Sharing USB Drive (346d:5678) with hypervisor...
+%USBIPD% bind --hardware-id 346d:5678 --force
+
+echo [3/3] Attaching USB Drive to WSL2 (auto-attach enabled)...
+%USBIPD% attach --wsl --hardware-id 346d:5678 --auto-attach
+
+echo.
+echo ===================================================
+echo  Done! If you just installed usbipd for the first time,
+echo  please UNPLUG your USB drive and PLUG IT BACK IN now!
+echo ===================================================
 echo.
 pause
