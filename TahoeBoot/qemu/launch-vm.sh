@@ -298,7 +298,41 @@ if [[ "${EXPOSE_ALL_DISKS}" == "1" ]]; then
                 -device "virtio-9p-pci,fsdev=fs_win_d,mount_tag=LocalDisk_D,addr=0x11"
             )
         fi
+
+        # Detect and attach any real physical USB flash drive / external SSD connected to Windows host
+        PS_CMD="/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe"
+        if [[ -x "${PS_CMD}" ]]; then
+            USB_DISKS=$("${PS_CMD}" -NoProfile -Command "Get-Disk | Where-Object BusType -eq 'USB' | Select-Object -ExpandProperty Number" 2>/dev/null | tr -d '\r')
+            for dnum in ${USB_DISKS}; do
+                if [[ -n "${dnum}" ]]; then
+                    echo "[TahoeBoot USB] Found physical USB disk #${dnum} on Windows host. Attaching to WSL2..."
+                    wsl.exe --mount "\\\\.\\PhysicalDrive${dnum}" --bare 2>/dev/null || true
+                fi
+            done
+        fi
     fi
+
+    # Enumerate physical USB / external storage block devices (both on Linux bare-metal and WSL2)
+    PHYS_USB_IDX=0
+    for blk in $(lsblk -dpno NAME,TYPE,TRAN,RM 2>/dev/null | awk '$2=="disk"{print $1, $3, $4}'); do
+        dev_name=$(echo "${blk}" | awk '{print $1}')
+        dev_tran=$(echo "${blk}" | awk '{print $2}')
+        dev_rm=$(echo "${blk}" | awk '{print $3}')
+        # Exclude system/internal disks and VM storage raw device
+        if [[ "${dev_name}" == "${RAW_DISK_DEV}" || "${dev_name}" == "/dev/sda" || "${dev_name}" == "/dev/sdb" || "${dev_name}" == "/dev/sdc" || "${dev_name}" == "/dev/sdd" ]]; then
+            if [[ "${dev_tran}" != "usb" && "${dev_rm}" != "1" ]]; then
+                continue
+            fi
+        fi
+        if [[ -b "${dev_name}" ]]; then
+            echo "[TahoeBoot USB] Attaching real physical USB drive ${dev_name} directly to VM (USB 3.0 mass storage, raw passthrough)..."
+            QEMU_ARGS+=(
+                -drive "id=realusb${PHYS_USB_IDX},if=none,format=raw,cache=none,file=${dev_name}"
+                -device "usb-storage,bus=xhci.0,drive=realusb${PHYS_USB_IDX},id=realusbdev${PHYS_USB_IDX},removable=on"
+            )
+            PHYS_USB_IDX=$((PHYS_USB_IDX + 1))
+        fi
+    done
 fi
 
 QEMU_ARGS+=(
@@ -349,6 +383,9 @@ echo "  - Storage Dir: ${ACTIVE_VM_DIR}"
 "${QEMU_BIN}" "${QEMU_ARGS[@]}" "$@"
 RET=$?
 sync
+if [[ -x "${TAHOEBOOT_ROOT}/scripts/sync-host-disks.sh" ]]; then
+    "${TAHOEBOOT_ROOT}/scripts/sync-host-disks.sh" "${HOST_MIRROR:-${ACTIVE_VM_DIR}/host-disks-mirror.qcow2}" 2>/dev/null || true
+fi
 if [[ "${IS_WSL}" == "1" && "${ACTIVE_VM_DIR}" != "${VM_DIR}" ]]; then
     cp -f "${ACTIVE_VM_DIR}/OVMF_VARS.fd" "${VM_DIR}/OVMF_VARS.fd" 2>/dev/null || true
 fi
