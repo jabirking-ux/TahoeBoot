@@ -61,6 +61,12 @@ cp -f "${TAHOEBOOT_ROOT}/opencore/tahoe-guest-setup.sh" "${ROOTFS_STAGE}/usr/loc
 cp -f "${TAHOEBOOT_ROOT}/diagnostics/tahoeboot-ui" "${ROOTFS_STAGE}/usr/local/share/tahoeboot/diagnostics/tahoeboot-ui"
 cp -f "${TAHOEBOOT_ROOT}/scripts/select-storage.sh" "${ROOTFS_STAGE}/usr/local/share/tahoeboot/scripts/select-storage.sh"
 cp -f "${TAHOEBOOT_ROOT}/scripts/vm-storage-mgr.sh" "${ROOTFS_STAGE}/usr/local/share/tahoeboot/scripts/vm-storage-mgr.sh"
+if [[ -f "${TAHOEBOOT_ROOT}/scripts/create-host-disk-mirror.sh" ]]; then
+    cp -f "${TAHOEBOOT_ROOT}/scripts/create-host-disk-mirror.sh" "${ROOTFS_STAGE}/usr/local/share/tahoeboot/scripts/create-host-disk-mirror.sh"
+fi
+if [[ -d "${TAHOEBOOT_ROOT}/opencore/EFI" ]]; then
+    cp -rf "${TAHOEBOOT_ROOT}/opencore/EFI" "${ROOTFS_STAGE}/usr/local/share/tahoeboot/opencore/EFI"
+fi
 chmod +x "${ROOTFS_STAGE}/usr/local/share/tahoeboot/"*/* || true
 
 # Copy compiled binaries & libraries

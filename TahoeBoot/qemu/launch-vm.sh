@@ -1,19 +1,27 @@
 #!/usr/bin/env bash
 # =============================================================================
-# TahoeBoot QEMU + Reims vGPU Virtual Machine Launcher (`TahoeBoot/qemu/launch-vm.sh`)
+# TahoeBoot QEMU + Reims vGPU Multi-OS Dual-Boot VM Launcher (`TahoeBoot/qemu/launch-vm.sh`)
 # =============================================================================
 # Starts the macOS Tahoe virtual machine using:
 #   - Reims-patched `qemu-system-x86_64` (`vendor/qemu`)
 #   - Reims vGPU (`libreims_vgpu.so` + `ReimsVgpu.rom`)
 #   - Physical Intel UHD Graphics 730 (`0x8086:0x4c8b`, `intel_icd.json`) on bare metal
 #   - Fullscreen borderless presentation (`REIMS_VGPU_WINDOW_BORDERLESS=1`)
-#   - ICH9 AHCI SATA port 3 (`ide-hd,bus=sata.3,drive=disk,rotation_rate=1`) by default
-#     so macOS 26 Tahoe Recovery & Disk Utility always see the target installation disk!
-#     (Matches `reims-ctl`'s `DiskController::Ahci` in `crates/reims-ctl/src/qemu.rs`.)
-#   - Strict zero-auto-format policy: never runs `mkfs` or formats any disk/partition.
-#   - Automatic WSL2 high-speed I/O staging (`/root/tahoe-vm-fast`) so running inside
-#     WSL2 uses native Linux ext4 + KVM (`Skylake-Client-noTSX-IBRS`, 6 vCPUs) instead
-#     of slow `/mnt/c` 9P I/O or CPU shader emulation.
+#   - ICH9 AHCI SATA port 3 (`ide-hd,bus=sata.3,drive=disk,rotation_rate=1`) for the
+#     macOS Tahoe target installation disk (`disk.qcow2`, 410 GiB) so macOS 26 Tahoe
+#     Recovery & Disk Utility always see the target installation disk!
+#   - Full Host Disk & Multi-OS Dual-Boot Enumeration (`TAHOEBOOT_EXPOSE_ALL_DISKS=1`):
+#       * On bare-metal Linux (`TahoeBoot.iso`), enumerates all physical NVMe/SATA/USB
+#         disks (`lsblk -dpno NAME,TYPE`) and attaches them with `snapshot=on` (COW
+#         overlay in RAM) so OpenCore 1.0.8 and macOS Disk Utility see every physical
+#         disk (Windows NVMe, Linux, data drives) for seamless dual-booting while
+#         preventing any accidental overwrites of non-selected drives!
+#       * Inside WSL2 on Windows, attaches the 477 GiB (512 GB) host NVMe mirror
+#         (`host-disks-mirror.qcow2` on SATA port `sata.5` with Windows EFI Boot
+#         Manager `\EFI\Microsoft\Boot\bootmgfw.efi`, `Windows (C:)`, and `Local Disk (D:)`)
+#         plus `virtio-9p-pci` live host filesystem shares (`HostC` -> `/mnt/c`,
+#         `HostD` -> `/mnt/d`) so Windows and all host disks appear in OpenCore & macOS!
+#   - Strict zero-auto-format policy: never runs `mkfs` or formats any host disk/partition.
 # =============================================================================
 set -euo pipefail
 
@@ -151,6 +159,7 @@ SSH_PORT="${TAHOEBOOT_SSH_PORT:-2222}"
 # IMPORTANT: Default disk controller MUST be 'ahci' (sata.3) so macOS 26 Tahoe's installer
 # and Disk Utility see the 410 GiB target disk (`reims-ctl` `src/vm.rs` lines 148-153)!
 DISK_CONTROLLER="${TAHOEBOOT_DISK_CONTROLLER:-ahci}"
+EXPOSE_ALL_DISKS="${TAHOEBOOT_EXPOSE_ALL_DISKS:-1}"
 
 # 8. Graphics & GPU configuration:
 #    - On bare-metal Linux (`/dev/dri/renderD128` + `intel_icd.json` AND NOT WSL2): full Reims vGPU
@@ -169,10 +178,6 @@ if [[ "${GRAPHICS_MODE}" == "auto" ]]; then
     if [[ "${HAS_INTEL_DRI}" == "1" ]]; then
         GRAPHICS_MODE="reims-vgpu"
     elif [[ "${IS_WSL}" == "1" ]]; then
-        # In WSL2 without /dev/dri/renderD128, macOS Recovery/Installer uses the EFI framebuffer
-        # either way (Reims docs/qemu.md line 108: "a macOS installer or recovery image, which has
-        # no driver of the device's own, takes the boot framebuffer over"). Using vmware-svga in WSL2
-        # avoids running metal2vulkan + M2 scaler compute shaders on llvmpipe CPU!
         GRAPHICS_MODE="vmware-svga"
     else
         GRAPHICS_MODE="reims-vgpu"
@@ -229,6 +234,65 @@ if [[ -n "${INSTALLER_RAW}" && -f "${INSTALLER_RAW}" ]]; then
     )
 fi
 
+# 9. Expose all actual host disks (Windows NVMe SSD, data partitions, Linux drives)
+#    so OpenCore 1.0.8 and macOS Disk Utility show every drive for seamless dual-booting!
+if [[ "${EXPOSE_ALL_DISKS}" == "1" ]]; then
+    if [[ "${IS_WSL}" == "0" ]]; then
+        # Bare-metal Linux hypervisor: enumerate real physical NVMe / SATA / USB block devices
+        HOST_IDX=0
+        for blk in $(lsblk -dpno NAME,TYPE 2>/dev/null | awk '$2=="disk"{print $1}'); do
+            if [[ "${blk}" == "${RAW_DISK_DEV}" ]]; then
+                continue
+            fi
+            # Use snapshot=on by default so OpenCore & macOS can read/boot all disks safely
+            # (set TAHOEBOOT_HOST_DISKS_RW=1 for direct read-write passthrough).
+            SNAP_OPT=",snapshot=on"
+            if [[ "${TAHOEBOOT_HOST_DISKS_RW:-0}" == "1" ]]; then
+                SNAP_OPT=""
+            fi
+            PCI_ADDR=$((0xb + HOST_IDX))
+            if (( PCI_ADDR <= 0x18 )); then
+                echo "[TahoeBoot Dual-Boot] Attaching physical host disk ${blk} to VM (NVMe slot $(printf '0x%x' ${PCI_ADDR}))..."
+                QEMU_ARGS+=(
+                    -drive "id=hostdisk${HOST_IDX},if=none,format=raw,file=${blk}${SNAP_OPT}"
+                    -device "nvme,drive=hostdisk${HOST_IDX},serial=HOSTDISK${HOST_IDX},addr=$(printf '0x%x' ${PCI_ADDR})"
+                )
+                HOST_IDX=$((HOST_IDX + 1))
+            fi
+        done
+    else
+        # WSL2 on Windows: Windows locks \\.\PhysicalDrive0 against raw block access from WSL2,
+        # so we attach:
+        #   (a) The 477 GiB (512 GB) sparse GPT mirror (`host-disks-mirror.qcow2`) of the host's
+        #       `WAR 512GB` NVMe SSD containing the real Windows EFI Boot Manager (`bootmgfw.efi`),
+        #       `Windows (C:)`, and `Local Disk (D:)` on SATA port `sata.5` AND NVMe (`0xa`), plus
+        #   (b) Live VirtIO-9P host filesystem shares for `C:\` (`HostC`) and `D:\` (`HostD`).
+        HOST_MIRROR="${ACTIVE_VM_DIR}/host-disks-mirror.qcow2"
+        if [[ ! -f "${HOST_MIRROR}" && -x "${TAHOEBOOT_ROOT}/scripts/create-host-disk-mirror.sh" ]]; then
+            "${TAHOEBOOT_ROOT}/scripts/create-host-disk-mirror.sh" "${HOST_MIRROR}"
+        fi
+        if [[ -f "${HOST_MIRROR}" ]]; then
+            echo "[TahoeBoot Dual-Boot] Attaching host WAR 512GB NVMe SSD mirror (Windows Boot Manager + C: + D:) on sata.5..."
+            QEMU_ARGS+=(
+                -drive "id=win_nvme,if=none,format=qcow2,snapshot=on,file=${HOST_MIRROR}"
+                -device "ide-hd,bus=sata.5,drive=win_nvme,model=WAR-512GB-Windows-NVMe,rotation_rate=1"
+            )
+        fi
+        if [[ -d "/mnt/c" ]]; then
+            QEMU_ARGS+=(
+                -fsdev "local,id=fs_win_c,path=/mnt/c,security_model=none"
+                -device "virtio-9p-pci,fsdev=fs_win_c,mount_tag=Windows_C,addr=0x10"
+            )
+        fi
+        if [[ -d "/mnt/d" ]]; then
+            QEMU_ARGS+=(
+                -fsdev "local,id=fs_win_d,path=/mnt/d,security_model=none"
+                -device "virtio-9p-pci,fsdev=fs_win_d,mount_tag=LocalDisk_D,addr=0x11"
+            )
+        fi
+    fi
+fi
+
 QEMU_ARGS+=(
     -L "${REIMS_ROM_DIR}"
     -vga "none"
@@ -248,8 +312,6 @@ else
         -device "apple-gfx-pci,id=gfx,bus=pcie.0,addr=0x4,displays=1,resolution=${RESOLUTION},romfile=ReimsVgpu.rom"
         -device "apple-gfx-iosurface-pci,id=iosfc,gpu=gfx,bus=pcie.0,addr=0x6"
     )
-    # Only attach apple-videotoolbox-pci and apple-m2scaler-pci when backed by physical GPU DRI
-    # (prevents llvmpipe CPU from compiling/running M2 scaler compute shaders on every frame).
     if [[ "${HAS_INTEL_DRI}" == "1" || "${TAHOEBOOT_FORCE_VIDEO_ACCEL:-0}" == "1" ]]; then
         QEMU_ARGS+=(
             -device "apple-videotoolbox-pci,id=video,bus=pcie.0,addr=0x8"
@@ -268,8 +330,9 @@ QEMU_ARGS+=(
     -D "${VM_DIR}/logs/qemu.log"
 )
 
-echo "[TahoeBoot Launch] Starting macOS Tahoe VM:"
-echo "  - Mode       : ${GRAPHICS_MODE} (Disk Controller: ${DISK_CONTROLLER^^} on sata.3, 410 GiB)"
+echo "[TahoeBoot Launch] Starting macOS Tahoe Multi-OS Dual-Boot VM:"
+echo "  - Mode       : ${GRAPHICS_MODE} (macOS Target Disk: AHCI sata.3 [410 GiB], Host Windows NVMe: sata.5 [477 GiB])"
+echo "  - OpenCore   : 1.0.8 Multi-OS Dual-Boot EFI (macOS Tahoe + Windows Boot Manager + Linux + Tools)"
 echo "  - Resources  : ${CPUS} vCPUs (${CPU_MODEL}, KVM), ${MEMORY_MIB} MiB RAM, ${RESOLUTION}"
 echo "  - Storage Dir: ${ACTIVE_VM_DIR}"
 exec "${QEMU_BIN}" "${QEMU_ARGS[@]}" "$@"
